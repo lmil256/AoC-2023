@@ -19,11 +19,9 @@ with open('input.txt') as infile:
     grid = infile.read().splitlines()
 
 # Make a clean grid twice the height and width
-big_grid = []
-big_height = len(grid) * 2
-big_width = len(grid[0]) * 2
-for i in range(big_height):
-    big_grid.append(['.'] * big_width)
+n_height = len(grid) * 2
+n_width = len(grid[0]) * 2
+n_grid = [['.']*n_width for _ in range(n_height)]
 
 # Find starting position
 for i in range(len(grid)):
@@ -49,10 +47,10 @@ while True:
         dirs = tilekey[tile]
         heading = dirs[0] if flip(heading) == dirs[1] else dirs[1]
     dy, dx = offset_y[heading], offset_x[heading]
-    # Draw the loop on the big grid
-    big_grid[pos_y*2 + 1][pos_x*2 + 1] = '#'
+    # Draw the loop on the n grid
+    n_grid[pos_y*2 + 1][pos_x*2 + 1] = '#'
     # Draw the extra tile
-    big_grid[pos_y*2 + 1 + dy][pos_x*2 + 1 + dx] = '#'
+    n_grid[pos_y*2 + 1 + dy][pos_x*2 + 1 + dx] = '#'
     pos_y += dy
     pos_x += dx
     loop_count += 1
@@ -69,9 +67,9 @@ while len(queue) > 0:
         outside += 1
     for dy, dx in zip(offset_y, offset_x):
         next_y, next_x = curr_y + dy, curr_x + dx
-        if -1 < next_y < big_height and -1 < next_x < big_width \
-                and big_grid[next_y][next_x] == '.':
-            big_grid[next_y][next_x] = ' '
+        if -1 < next_y < n_height and -1 < next_x < n_width \
+                and n_grid[next_y][next_x] == '.':
+            n_grid[next_y][next_x] = ' '
             queue.append(next_y)
             queue.append(next_x)
 
