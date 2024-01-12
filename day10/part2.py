@@ -18,11 +18,6 @@ tilekey = {
 with open('input.txt') as infile:
     grid = infile.read().splitlines()
 
-# Make a clean grid twice the height and width
-n_height = len(grid) * 2
-n_width = len(grid[0]) * 2
-n_grid = [['.']*n_width for _ in range(n_height)]
-
 # Find starting position
 for i in range(len(grid)):
     if (t := grid[i].find('S')) != -1:
@@ -37,6 +32,7 @@ for direction in range(4):
         heading = direction
         break
 
+verts = [(start_y, start_x)]
 pos_y = start_y
 pos_x = start_x
 loop_count = 0
@@ -46,31 +42,18 @@ while True:
     if tile in 'LJ7F':
         dirs = tilekey[tile]
         heading = dirs[0] if flip(heading) == dirs[1] else dirs[1]
+        verts.append((pos_y, pos_x))
     dy, dx = offset_y[heading], offset_x[heading]
-    # Draw the loop on the n grid
-    n_grid[pos_y*2 + 1][pos_x*2 + 1] = '#'
-    # Draw the extra tile
-    n_grid[pos_y*2 + 1 + dy][pos_x*2 + 1 + dx] = '#'
     pos_y += dy
     pos_x += dx
     loop_count += 1
     if pos_y == start_y and pos_x == start_x:
         break
 
-# Flood fill from the top left corner to find all outside tiles
-queue = [0, 0]
-outside = 0
-while len(queue) > 0:
-    curr_y, curr_x = queue.pop(0), queue.pop(0)
-    # Count tiles which map to the original grid
-    if curr_y % 2 == curr_x % 2 == 1:
-        outside += 1
-    for dy, dx in zip(offset_y, offset_x):
-        next_y, next_x = curr_y + dy, curr_x + dx
-        if -1 < next_y < n_height and -1 < next_x < n_width \
-                and n_grid[next_y][next_x] == '.':
-            n_grid[next_y][next_x] = ' '
-            queue.append(next_y)
-            queue.append(next_x)
+verts.append((start_y, start_x))
+s1 = s2 = 0
+for i in range(len(verts)-1):
+    s1 += verts[i][0]*verts[i+1][1]
+    s2 += verts[i][1]*verts[i+1][0]
 
-print(len(grid)*len(grid[0]) - loop_count - outside)
+print(abs(s1-s2)//2 - loop_count//2 + 1)
